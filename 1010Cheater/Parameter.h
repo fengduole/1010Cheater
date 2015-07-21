@@ -21,8 +21,8 @@ class Parameter
 public:
 	Parameter();
 
-	array<array<int, 12>, 12> origin_map;
-	array<array<int, 12>, 12> new_map;
+	MAP origin_map;
+	MAP new_map;
 
 	array<int, 19> origin_positions;
 	array<int, 19> new_positions;
@@ -34,5 +34,7 @@ public:
 	int score, score_put, score_remove;
 	int perimeter;
 	int single_count;
+
+	double rank_value;
 };
 

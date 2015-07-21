@@ -1,5 +1,7 @@
 #pragma once
 
+#define MAP array<array<int, 12>, 12>
+
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -18,7 +20,7 @@ const int series_index[6][3] = {
 { 2, 1, 3 },
 { 2, 3, 1 },
 { 3, 1, 2 },
-{ 3, 2, 1 } };
+{ 3, 2, 1 }};
 
 class Algorithm
 {
@@ -27,45 +29,38 @@ public:
 
 	void SetBlockList(vector<Block>);
 
-	void Alg(array<array<int, 12>, 12>, 
-			 vector<Block>, 
-			 array<array<int, 12>, 12>&, 
-			 int &,
-			 int &, 
-			 int &);
+	void Alg_Recursive(MAP, vector<Block>, MAP&, int &, int &, int &);
+	void Alg_Circulation(MAP, vector<Block>, MAP&, int &, int &, int &);
 
 private:
 	// function members
-	bool IsPut(array<array<int, 12>, 12>, Block, int, int);
-	int BlockPositionCount(array<array<int, 12>, 12>, Block);
-	array<int, 19> GetPositionCounts(array<array<int, 12>, 12>);
-	int GetPerimeter(array<array<int, 12>, 12>);
-	int GetSingleCount(array<array<int, 12>, 12>);
+	bool IsPut(MAP, Block, int, int);
+	int BlockPositionCount(MAP, Block);
+	array<int, 19> GetPositionCounts(MAP);
+	int GetPerimeter(MAP);
+	int GetSingleCount(MAP);
 
-	void PutDownBlock(array<array<int, 12>, 12>&, Block, int, int);
-	void PickUpBlock(array<array<int, 12>, 12>&, Block, int, int);
+	void PutDownBlock(MAP&, Block, int, int);
+	void PickUpBlock(MAP&, Block, int, int);
 
 	vector<Block> SeriesBlock(vector<Block>, const int);
-	void MapRemove(array<array<int, 12>, 12>, array<array<int, 12>, 12>&, int&);
+	void MapRemove(MAP, MAP&, int&);
 
-	void MapRemoveRow(array<array<int, 12>, 12>&, int);
-	void MapRemoveCol(array<array<int, 12>, 12>&, int);
+	void MapRemoveRow(MAP&, int);
+	void MapRemoveCol(MAP&, int);
 
 	static bool ComparerParameter(Parameter, Parameter);
 	static double RankValueCalc(Parameter);
 
-	void PutBlockSeries(array<array<int, 12>, 12>, 
-						vector<Block>,
-						array<array<int, 12>, 12>&,
-						int &,
-						int &,
-						int &);
+	void PutBlockSeries(MAP, vector<Block>, MAP&, int &, int &, int &);
 
-	void DeepFirstPositionSearch(array<array<int, 12>, 12>,
+	void GenerateParameterCandidate(MAP, vector<Block>);
+
+	void DeepFirstPositionSearch(MAP,
 		Parameter, vector<Block>::const_iterator, vector<Block>::const_iterator);
 
 	
-	void PrintMap(array<array<int, 12>, 12>);
+	void PrintMap(MAP);
 
 	// constant
 	const int max_param_cache_size = 9999;

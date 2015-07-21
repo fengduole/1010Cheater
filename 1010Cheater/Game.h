@@ -17,9 +17,10 @@ class Game
 public:
 	Game();
 
-	int Simulation(void);
+	int Simulation(int);
 	int Cheat(void);
-	int ListInput(void);
+	int ListInput(int);
+	int Core();
 
 private:
 	// function members
@@ -35,7 +36,7 @@ private:
 	
 	// data members
 	vector<Block> block_list;
-	array<array<int, 12>, 12> map;
+	MAP map;
 
 	int score, score_put, score_remove;
 	int times;

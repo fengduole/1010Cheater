@@ -12,12 +12,13 @@ void Algorithm::SetBlockList(vector<Block> blocks)
 	copy(blocks.begin(), blocks.end(), back_inserter(block_list));
 }
 
-void Algorithm::Alg(array<array<int, 12>, 12> origin_map,
-					vector<Block> blocks, 
-					array<array<int, 12>, 12>& new_map, 
-					int& status,
-					int& score_put_delta, 
-					int& score_remove_delta)
+void Algorithm::Alg_Recursive(
+	MAP origin_map,
+	vector<Block> blocks, 
+	MAP& new_map, 
+	int& status,
+	int& score_put_delta, 
+	int& score_remove_delta)
 {
 	parameter.clear();
 	
@@ -56,10 +57,56 @@ void Algorithm::Alg(array<array<int, 12>, 12> origin_map,
 	}*/
 }
 
+void Algorithm::Alg_Circulation(
+	MAP origin_map,
+	vector<Block> blocks,
+	MAP& new_map,
+	int& status,
+	int& score_put_delta,
+	int& score_remove_delta)
+{
+	parameter.clear();
+
+	for (int i_combine = 0; i_combine < 6; i_combine++)
+	{
+		vector<Block> series_block = SeriesBlock(blocks, i_combine);
+
+		param_cache.clear();
+		GenerateParameterCandidate(origin_map, series_block);
+		parameter.insert(parameter.end(), param_cache.begin(), param_cache.end());
+	}
+
+	sort(parameter.begin(), parameter.end(), ComparerParameter);
+
+	if ((int)parameter.size() <= 0)
+	{
+		status = 1;
+		return;
+	}
+
+	Parameter best_parameter = parameter[0];
+
+	new_map = best_parameter.new_map;
+	score_put_delta = best_parameter.score_put;
+	score_remove_delta = best_parameter.score_remove;
+	status = 0;
+
+	//	PrintMap(origin_map);
+	//	PrintMap(best_parameter.new_map);
+
+
+	/*for (int i = 0; i <= 3; i++)
+	{
+	cout << parameter[i].perimeter << endl;
+	PrintMap(parameter[i].new_map);
+	}*/
+}
+
+
 /*
 whether the map(row, col) can be put the block
 */
-bool Algorithm::IsPut(array<array<int, 12>, 12> map, Block block, int row, int col)
+bool Algorithm::IsPut(MAP map, Block block, int row, int col)
 {
 	for (int i_r = 0; i_r < block._r; i_r++)
 	{
@@ -78,7 +125,7 @@ bool Algorithm::IsPut(array<array<int, 12>, 12> map, Block block, int row, int c
 /*
 calculate how many positions can put the block
 */
-int Algorithm::BlockPositionCount(array<array<int, 12>, 12> map, Block block)
+int Algorithm::BlockPositionCount(MAP map, Block block)
 {
 	int count = 0;
 
@@ -98,7 +145,7 @@ int Algorithm::BlockPositionCount(array<array<int, 12>, 12> map, Block block)
 	return count;
 }
 
-array<int, 19> Algorithm::GetPositionCounts(array<array<int, 12>, 12> map)
+array<int, 19> Algorithm::GetPositionCounts(MAP map)
 {
 	array<int, 19> counts;
 	counts.fill(0);
@@ -111,20 +158,20 @@ array<int, 19> Algorithm::GetPositionCounts(array<array<int, 12>, 12> map)
 	return counts;
 }
 
-int Algorithm::GetPerimeter(array<array<int, 12>, 12> map)
+int Algorithm::GetPerimeter(MAP map)
 {
 	int perimeter = 0;
 
-	for (int i_r = 1; i_r <= 10; i_r++)
+	for (int i_r = 0; i_r <= 11; i_r++)
 	{
-		for (int i_c = 1; i_c <= 10; i_c++)
+		for (int i_c = 0; i_c <= 11; i_c++)
 		{
-			if (!map[i_r][i_c])
+			if (map[i_r][i_c] > 0)
 			{
-				perimeter += map[i_r + 1][i_c] != 0;
-				perimeter += map[i_r - 1][i_c] != 0;
-				perimeter += map[i_r][i_c + 1] != 0;
-				perimeter += map[i_r][i_c - 1] != 0;
+				perimeter += map[i_r + 1][i_c] == 0;
+				perimeter += map[i_r - 1][i_c] == 0;
+				perimeter += map[i_r][i_c + 1] == 0;
+				perimeter += map[i_r][i_c - 1] == 0;
 			}
 		}
 	}
@@ -132,7 +179,7 @@ int Algorithm::GetPerimeter(array<array<int, 12>, 12> map)
 	return perimeter;
 }
 
-int Algorithm::GetSingleCount(array<array<int, 12>, 12> map)
+int Algorithm::GetSingleCount(MAP map)
 {
 	int count = 0;
 
@@ -151,7 +198,7 @@ int Algorithm::GetSingleCount(array<array<int, 12>, 12> map)
 	return count;
 }
 
-void Algorithm::PutDownBlock(array<array<int, 12>, 12>& map, Block block, int row, int col)
+void Algorithm::PutDownBlock(MAP& map, Block block, int row, int col)
 {
 	for (int i_r = 0; i_r < block._r; i_r++)
 	{
@@ -165,7 +212,7 @@ void Algorithm::PutDownBlock(array<array<int, 12>, 12>& map, Block block, int ro
 	}
 }
 
-void Algorithm::PickUpBlock(array<array<int, 12>, 12>& map, Block block, int row, int col)
+void Algorithm::PickUpBlock(MAP& map, Block block, int row, int col)
 {
 	for (int i_r = 0; i_r < block._r; i_r++)
 	{
@@ -195,8 +242,8 @@ vector<Block> Algorithm::SeriesBlock(vector<Block> blocks, const int i_series)
 	return series_block;
 }
 
-void Algorithm::MapRemove(array<array<int, 12>, 12> origin_map,
-	array<array<int, 12>, 12>& new_map, int& score_remove)
+void Algorithm::MapRemove(MAP origin_map,
+	MAP& new_map, int& score_remove)
 {
 	new_map = origin_map;
 
@@ -239,7 +286,7 @@ void Algorithm::MapRemove(array<array<int, 12>, 12> origin_map,
 }
 
 
-void Algorithm::MapRemoveRow(array<array<int, 12>, 12>& map, int row)
+void Algorithm::MapRemoveRow(MAP& map, int row)
 {
 	for (int i = 1; i <= 10; i++)
 	{
@@ -247,7 +294,7 @@ void Algorithm::MapRemoveRow(array<array<int, 12>, 12>& map, int row)
 	}
 }
 
-void Algorithm::MapRemoveCol(array<array<int, 12>, 12>& map, int col)
+void Algorithm::MapRemoveCol(MAP& map, int col)
 {
 	for (int i = 1; i <= 10; i++)
 	{
@@ -257,12 +304,7 @@ void Algorithm::MapRemoveCol(array<array<int, 12>, 12>& map, int col)
 
 bool Algorithm::ComparerParameter(Parameter p1, Parameter p2)
 {
-	double rank_p1 = 0, rank_p2 = 0; //larger is better
-
-	rank_p1 = RankValueCalc(p1);
-	rank_p2 = RankValueCalc(p2);
-
-	return rank_p1 > rank_p2;
+	return p1.rank_value > p2.rank_value;
 }
 
 double Algorithm::RankValueCalc(Parameter para)
@@ -282,9 +324,9 @@ double Algorithm::RankValueCalc(Parameter para)
 	return value + value_pos;
 }
 
-void Algorithm::PutBlockSeries(array<array<int, 12>, 12> origin_map,
+void Algorithm::PutBlockSeries(MAP origin_map,
 							   vector<Block> blocks,
-							   array<array<int, 12>, 12>& new_map,
+							   MAP& new_map,
 							   int& status,
 							   int& score_put_delta,
 							   int& score_remove_delta)
@@ -295,9 +337,105 @@ void Algorithm::PutBlockSeries(array<array<int, 12>, 12> origin_map,
 }
 
 
-void Algorithm::DeepFirstPositionSearch(array<array<int, 12>, 12> map, Parameter theParam, vector<Block>::const_iterator iter, vector<Block>::const_iterator end_iter)
+void Algorithm::GenerateParameterCandidate(
+	MAP origin_map,
+	vector<Block> blocks)
 {
-	if ((int)param_cache.size() >= max_param_cache_size)
+	MAP map = origin_map;
+	MAP map_cache[3];
+	Point point[3];
+	int score_remove[3];
+
+	// the 1st block
+	for (int i_r_0 = 1; i_r_0 <= 11 - blocks[0]._r; i_r_0++)
+	{
+		for (int i_c_0 = 1; i_c_0 <= 11 - blocks[0]._c; i_c_0++)
+		{
+			if (!IsPut(map, blocks[0], i_r_0, i_c_0))
+				continue;
+
+			map_cache[0] = map;
+			PutDownBlock(map, blocks[0], i_r_0, i_c_0);
+			MapRemove(map, map, score_remove[0]);
+
+			point[0].r = i_r_0;
+			point[0].c = i_c_0;
+			
+			// the 2nd block
+			for (int i_r_1 = 1; i_r_1 <= 11 - blocks[1]._r; i_r_1++)
+			{
+				for (int i_c_1 = 1; i_c_1 <= 11 - blocks[1]._c; i_c_1++)
+				{
+					if (!IsPut(map, blocks[1], i_r_1, i_c_1))
+						continue;
+
+					map_cache[1] = map;
+					PutDownBlock(map, blocks[1], i_r_1, i_c_1);
+					MapRemove(map, map, score_remove[1]);
+
+					point[1].r = i_r_1;
+					point[1].c = i_c_1;
+
+					for (int i_r_2 = 1; i_r_2 <= 11 - blocks[2]._r; i_r_2++)
+					{
+						for (int i_c_2 = 1; i_c_2 <= 11 - blocks[2]._c; i_c_2++)
+						{
+							if (!IsPut(map, blocks[2], i_r_2, i_c_2))
+								continue;
+
+							map_cache[2] = map;
+							PutDownBlock(map, blocks[2], i_r_2, i_c_2);
+							MapRemove(map, map, score_remove[2]);
+
+						//	PrintMap(map);
+						//	system("pause");
+
+							point[2].r = i_r_1;
+							point[2].c = i_c_1;
+
+							Parameter p;
+
+							p.score_remove = 0;
+							p.score_put = 0;
+							p.index = parameter.size() + 1;
+							p.origin_map = origin_map;
+							p.new_map = map;
+							p.perimeter = GetPerimeter(map);
+							p.new_positions = GetPositionCounts(map);
+							p.single_count = GetSingleCount(map);
+
+							for (int i = 0; i < 3; i++)
+							{
+								p.series_block.push_back(blocks[i]);
+								p.series_position.push_back(point[i]);
+								p.score_remove += score_remove[i];
+								p.score_put += blocks[i]._score_put;
+							}
+
+							p.rank_value = RankValueCalc(p);
+
+							param_cache.push_back(p);
+
+							if ((int)param_cache.size() > max_param_cache_size && max_param_cache_size > 0)
+							{
+								return;
+							}
+
+							map = map_cache[2];
+						}						
+					}
+					map = map_cache[1];					
+				}
+			}
+			map = map_cache[0];
+		}
+	}
+
+}
+
+void Algorithm::DeepFirstPositionSearch(MAP map, Parameter theParam, vector<Block>::const_iterator iter, vector<Block>::const_iterator end_iter)
+{
+	if ((int)param_cache.size() >= max_param_cache_size && max_param_cache_size > 0)
 	{
 		return;
 	}
@@ -308,6 +446,8 @@ void Algorithm::DeepFirstPositionSearch(array<array<int, 12>, 12> map, Parameter
 		theParam.new_map = map;
 		theParam.new_positions = GetPositionCounts(map);
 		theParam.single_count = GetSingleCount(map);
+		theParam.rank_value = RankValueCalc(theParam);
+
 		param_cache.push_back(theParam);
 		
 		if (theParam.score_remove == 20)
@@ -332,7 +472,7 @@ void Algorithm::DeepFirstPositionSearch(array<array<int, 12>, 12> map, Parameter
 				position.r = i_r;
 				position.c = i_c;
 
-				array<array<int, 12>, 12> new_map;
+				MAP new_map;
 				int score_remove = 0;
 
 				PutDownBlock(map, block, i_r, i_c);
@@ -360,7 +500,7 @@ void Algorithm::DeepFirstPositionSearch(array<array<int, 12>, 12> map, Parameter
 
 }
 
-void Algorithm::PrintMap(array<array<int, 12>, 12> map)
+void Algorithm::PrintMap(MAP map)
 {
 	for (int i_r = 1; i_r <= 10; i_r++)
 	{

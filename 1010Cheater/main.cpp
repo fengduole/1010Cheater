@@ -6,22 +6,28 @@ using namespace std;
 
 int main(void)
 {
-	int mode;
+	int game_mode, alg_mode;
 	Game game;
 
-	cin >> mode;
+	//input_mode = 2;
+	//alg_mode = 2;
 
-	if (mode == 1)
+	cin >> game_mode >> alg_mode;
+	
+	if (game_mode == 1)
 	{
-		game.Simulation();
+		game.Simulation(alg_mode);
 	}
-	else if (mode == 2)
+	else if (game_mode == 2)
+	{
+		game.ListInput(alg_mode);
+	}
+	else if (game_mode == 3)
 	{
 		game.Cheat();
 	}
-	else if (mode == 3)
+	else if (game_mode == 4)
 	{
-		game.ListInput();
 	}
 
 	system("pause");

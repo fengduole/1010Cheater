@@ -32,9 +32,9 @@ void Game::InitializeMap(void)
 	}
 }
 
-int Game::Simulation(void)
+int Game::Simulation(int alg)
 {
-	array<array<int, 12>, 12> next_step_map;
+	MAP next_step_map;
 	vector<Block> three_blocks;
 	Algorithm algorithm;
 	int score = 0,
@@ -55,7 +55,14 @@ int Game::Simulation(void)
 
 		three_blocks = RandomThreeBlocks(times);
 
-		algorithm.Alg(map, three_blocks, next_step_map, status, score_put_delta, score_remove_delta);
+		if (alg == 1)
+		{
+			algorithm.Alg_Recursive(map, three_blocks, next_step_map, status, score_put_delta, score_remove_delta);
+		}
+		else if (alg == 2)
+		{
+			algorithm.Alg_Circulation(map, three_blocks, next_step_map, status, score_put_delta, score_remove_delta);
+		}
 		
 		if (status == 1)
 		{
@@ -78,7 +85,7 @@ int Game::Simulation(void)
 int Game::Cheat(void)
 {
 	int block_id[3];
-	array<array<int, 12>, 12> next_step_map;
+	MAP next_step_map;
 	vector<Block> three_blocks;
 	Algorithm algorithm;
 	int score = 0,
@@ -104,7 +111,7 @@ int Game::Cheat(void)
 		}	
 
 		three_blocks = SelectThreeBlocks(times, block_id);
-		algorithm.Alg(map, three_blocks, next_step_map, status, score_put_delta, score_remove_delta);
+		algorithm.Alg_Recursive(map, three_blocks, next_step_map, status, score_put_delta, score_remove_delta);
 
 		if (status == 1)
 		{
@@ -120,11 +127,11 @@ int Game::Cheat(void)
 	}
 }
 
-int Game::ListInput(void)
+int Game::ListInput(int alg)
 {
 	ifstream in_file("block_list.txt");
 	int block_id[3];
-	array<array<int, 12>, 12> next_step_map;
+	MAP next_step_map;
 	vector<Block> three_blocks;
 	Algorithm algorithm;
 	int score = 0,
@@ -150,7 +157,14 @@ int Game::ListInput(void)
 
 		three_blocks = SelectThreeBlocks(times, block_id);
 
-		algorithm.Alg(map, three_blocks, next_step_map, status, score_put_delta, score_remove_delta);
+		if (alg == 1)
+		{
+			algorithm.Alg_Recursive(map, three_blocks, next_step_map, status, score_put_delta, score_remove_delta);
+		}
+		else if (alg == 2)
+		{
+			algorithm.Alg_Circulation(map, three_blocks, next_step_map, status, score_put_delta, score_remove_delta);
+		}
 
 		if (status == 1)
 		{
